@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ghostwriter
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: godmode
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  nats:
+    image: nats:2
+    command: "--jetstream"
+    ports:
+      - "4222:4222"
+
+  api:
+    build: ./api
+    depends_on: [db, nats, redis]
+    environment:
+      - DATABASE_URL=postgresql://admin:godmode@db:5432/ghostwriter
+      - NATS_URL=nats://nats:4222
+    ports:
+      - "3000:3000"
+
+  workers:
+    build: ./workers
+    depends_on: [db, nats, redis]
+    command: python main.py
+
+  dashboard:
+    build: ./dashboard
+    ports:
+      - "3001:3000"
+
+volumes:
+  db_data:
