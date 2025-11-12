@@ -1,0 +1,20 @@
+model Artist {
+  id            String   @id @default(uuid())
+  name          String
+  email         String?
+  socials       Json
+  score         Float?
+  status        String   @default("scouted")
+  embed         Bytes?
+  createdAt     DateTime @default(now())
+}
+
+model Track {
+  id            String   @id @default(uuid())
+  artistId      String
+  title         String
+  status        String   @default("raw")
+  masterUrl     String?
+  coverUrl      String?
+  createdAt     DateTime @default(now())
+}
